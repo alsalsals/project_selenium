@@ -5,12 +5,13 @@ from selenium import webdriver
 import selenide as browser
 
 
-browser.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+def test_check_name_on_github_page():
+    browser.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
-query = browser.element('[name=q]')
+    query = browser.element('[name=q]')
 
-browser.open_page('https://google.com')
-query.should_be_blank()
-query.set_value('alsalsals').press_enter()
+    browser.open_page('https://google.com')
+    query.should_be_blank()
+    query.set_value('alsalsals').press_enter()
 
-browser.element('#rso .g').element('adfs').click()
+    browser.element('#rso .g').element('a').click()
