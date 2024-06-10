@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import Callable
+
 from selenium import webdriver
 from selenium.common import WebDriverException
+from selenium.webdriver import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
+from wait import WebDriverWait
 
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -27,11 +34,40 @@ class element_value_is_empty(object):
 
 
 class Element:
-    def __init__(self, selector):
-        self.selector = selector
+    def __init__(self, locate: Callable[[], WebElement]):
+        self.locate = locate
 
     def should_be_blank(self):
-        wait().until(element_value_is_empty(self.selector))
+        wait().until(element_value_is_empty(self.locate))
+        return self
+
+    def set_value(self, text) -> Element:
+        def command(driver):
+            driver.find_element(By.CSS_SELECTOR, self.locate).clear()
+            driver.find_element(By.CSS_SELECTOR, self.locate).send_keys(text)
+            return True
+
+        wait().until(command)
+        return self
+
+    def press_enter(self) -> Element:
+        def command(driver):
+            driver.find_element(By.CSS_SELECTOR, self.locate).send_keys(Keys.ENTER)
+            return True
+
+        wait().until(command)
+        return self
+
+    def click(self) -> Element:
+        def command(driver):
+            driver.find_element(By.CSS_SELECTOR, self.locate).click()
+            return True
+
+        wait().until(command)
+        return self
+
+    def element(self, selector: str) -> Element:
+        return Element(self.locate + ' ' + selector)
 
 
 def open_page(url):
