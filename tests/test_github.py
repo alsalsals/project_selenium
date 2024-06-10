@@ -7,10 +7,10 @@ import selenide as browser
 
 browser.driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
-query = browser.Element('[name=q]')
+query = browser.element('[name=q]')
 
 browser.open_page('https://google.com')
 query.should_be_blank()
 query.set_value('alsalsals').press_enter()
 
-browser.Element('#rso .g').element('adfs').click()
+browser.element('#rso .g').element('adfs').click()

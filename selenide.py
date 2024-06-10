@@ -22,15 +22,14 @@ def wait():
 
 
 class element_value_is_empty(object):
-    def __init__(self, selector):
-        self.selector = selector
+    def __init__(self, locate: Callable[[], WebElement]):
+        self.locate = locate
 
     def __call__(self, driver):
-        return (driver.find_element(By.CSS_SELECTOR, self.selector)
-                .get_attribute('value') == '')
+        return self.locate().get_attribute('value') == ''
 
     def __str__(self):
-        return f'Value of element {self.selector} is empty'
+        return f'Value of element {self.locate} is empty'
 
 
 class Element:
@@ -43,8 +42,9 @@ class Element:
 
     def set_value(self, text) -> Element:
         def command(driver):
-            driver.find_element(By.CSS_SELECTOR, self.locate).clear()
-            driver.find_element(By.CSS_SELECTOR, self.locate).send_keys(text)
+            webelement = self.locate()
+            webelement.clear()
+            webelement.send_keys(text)
             return True
 
         wait().until(command)
@@ -52,7 +52,8 @@ class Element:
 
     def press_enter(self) -> Element:
         def command(driver):
-            driver.find_element(By.CSS_SELECTOR, self.locate).send_keys(Keys.ENTER)
+            webelement = self.locate()
+            webelement.send_keys(Keys.ENTER)
             return True
 
         wait().until(command)
@@ -60,26 +61,20 @@ class Element:
 
     def click(self) -> Element:
         def command(driver):
-            driver.find_element(By.CSS_SELECTOR, self.locate).click()
+            webelement = self.locate()
+            webelement.click()
             return True
 
         wait().until(command)
         return self
 
     def element(self, selector: str) -> Element:
-        return Element(self.locate + ' ' + selector)
+        return Element(lambda: self.locate().find_element(By.CSS_SELECTOR, selector))
 
 
 def open_page(url):
     driver.get(url)
 
 
-
-
-
-
-
-
-
-
-
+def element(selector: str):
+    return Element(lambda: driver.find_element(By.CSS_SELECTOR, selector))
